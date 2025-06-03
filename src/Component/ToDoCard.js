@@ -4,12 +4,20 @@ import Typography from "@mui/material/Typography";
 import Grid from "@mui/material/Grid";
 import IconButton from "@mui/material/IconButton";
 
+// hooks
+import { useContext } from "react";
+
+// context
+import { ToDoContext } from "../Context/ToDoContext";
+
 // ICONS
 import CheckIcon from "@mui/icons-material/Check";
 import DeleteOutlineRoundedIcon from "@mui/icons-material/DeleteOutlineRounded";
 import ModeEditRoundedIcon from "@mui/icons-material/ModeEditRounded";
 
-export default function ToDoCard() {
+export default function ToDoCard({ onClickCheckIcon, onClickDeleteIcon }) {
+  const todo = useContext(ToDoContext);
+
   return (
     <>
       <Card variant="outlined" className="todo-card">
@@ -21,9 +29,9 @@ export default function ToDoCard() {
                 textAlign: "start",
               }}
             >
-              <Typography variant="h6">hello</Typography>
+              <Typography variant="h6">{todo.todo.title}</Typography>
               <Typography variant="p" sx={{ paddingLeft: "8px" }}>
-                hello
+                {todo.todo.detail}
               </Typography>
             </Grid>
             <Grid
@@ -43,9 +51,10 @@ export default function ToDoCard() {
                 }}
               >
                 <IconButton
+                  onClick={onClickCheckIcon}
                   sx={{
-                    color: "green",
-                    background: "white",
+                    color: todo.todo.isCompeleted ? "white" : "green",
+                    background: todo.todo.isCompeleted ? "green" : "white",
                     border: "2px solid green",
                   }}
                 >
@@ -61,6 +70,7 @@ export default function ToDoCard() {
                   <ModeEditRoundedIcon />
                 </IconButton>
                 <IconButton
+                  onClick={onClickDeleteIcon}
                   sx={{
                     color: "red",
                     background: "white",
