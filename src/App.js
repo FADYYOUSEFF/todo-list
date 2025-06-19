@@ -1,9 +1,12 @@
 import "./App.css";
 import ToDo from "./Component/ToDo.js";
+import { TodosProvider } from "./Context/TodosContext.js";
 function App() {
   return (
     <div className="App">
-      <ToDo />
+      <TodosProvider>
+        <ToDo />
+      </TodosProvider>
     </div>
   );
 }
