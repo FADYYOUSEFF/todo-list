@@ -6,11 +6,9 @@ import Button from "@mui/material/Button";
 import ToggleButton from "@mui/material/ToggleButton";
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 
-//OTHERS
-import { v4 as uuidv4 } from "uuid";
-
 //HOOKS
 import { useMemo, useState } from "react";
+import { useTodos } from "../Context/TodosContext";
 
 // COMPONENTS
 import ToDoCard from "./ToDoCard";
@@ -18,15 +16,13 @@ import DeleteDialog from "./DeleteDialog";
 import EditedDialog from "./EditedDialog";
 
 // CONSTANTS
-import { StorageKeys } from "../constants/StorageKeys";
 import { ToggleButtonValues } from "../constants/ToggleButtonValues";
 import { Labels } from "../constants/Labels";
+import { TodosReducerType } from "../constants/TodosReducerType";
 
 export default function ToDo() {
   const [addToDoField, setAddToDoField] = useState("");
-  const [toDoList, setToDoList] = useState(
-    JSON.parse(localStorage.getItem(StorageKeys.TODOS)) ?? []
-  );
+  const { toDoList, dispatch } = useTodos();
 
   const [toDoToBeDeletedInDialog, setToDoToBeDeletedInDialog] = useState(null);
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
@@ -63,12 +59,10 @@ export default function ToDo() {
   }
 
   const handleConfirmDeleteDialog = () => {
-    const newToDoList = toDoList.filter(
-      (todo) => todo.id !== toDoToBeDeletedInDialog.id
-    );
-    localStorage.setItem(StorageKeys.TODOS, JSON.stringify(newToDoList));
-
-    setToDoList(newToDoList);
+    dispatch({
+      type: TodosReducerType.Deleted,
+      payload: { id: toDoToBeDeletedInDialog.id },
+    });
     handleCloseDeleteDialog();
   };
 
@@ -77,15 +71,8 @@ export default function ToDo() {
     setOpenEditedDialog(false);
   };
 
-  const handleConfirmEditDialog = (todo) => {
-    const newToDoList = toDoList.map((t) => {
-      if (t.id === todo.id) {
-        return todo;
-      }
-      return t;
-    });
-    localStorage.setItem(StorageKeys.TODOS, JSON.stringify(newToDoList));
-    setToDoList(newToDoList);
+  const handleConfirmEditDialog = (newTodo) => {
+    dispatch({ type: TodosReducerType.Updated, payload: newTodo });
     handleCloseEditedDialog();
   };
 
@@ -103,26 +90,14 @@ export default function ToDo() {
   };
 
   const handleClickCheckIcon = (id) => {
-    const newToDoList = toDoList.map((todo) => {
-      if (todo.id === id) {
-        todo.isCompeleted = !todo.isCompeleted;
-      }
-      return todo;
-    });
-    localStorage.setItem(StorageKeys.TODOS, JSON.stringify(newToDoList));
-    setToDoList(newToDoList);
+    dispatch({ type: TodosReducerType.ChangeCompleteState, payload: { id } });
   };
 
   const handleClickAddToDo = () => {
-    const newToDo = {
-      id: uuidv4(),
-      title: addToDoField,
-      detail: "",
-      isCompeleted: false,
-    };
-    const newToDoList = [...toDoList, newToDo];
-    localStorage.setItem(StorageKeys.TODOS, JSON.stringify(newToDoList));
-    setToDoList(newToDoList);
+    dispatch({
+      type: TodosReducerType.Added,
+      payload: { title: addToDoField },
+    });
     setAddToDoField("");
   };
   const handleClickToggleButton = (event) => {
